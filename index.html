@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Linha do Tempo - Cidades Capixabas</title>
+  <style>
+
+
+  /* ====== propagandaexterna====== */
+
+
+    #iframe-wrapper {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      max-width: 400px;
+      height: 50vh; /* Altura relativa no desktop */
+      max-height: 400px;
+      z-index: 9999;
+      border-radius: 10px 0 0 0;
+      box-shadow: -2px -2px 12px rgba(0,0,0,0.3);
+      background-color: #fff;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #iframe-fixo {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 10px 0 0 0;
+      display: block;
+    }
+
+    #close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      line-height: 32px;
+      text-align: center;
+      z-index: 10000;
+      display: none; /* Escondido inicialmente */
+      transition: background-color 0.3s ease;
+    }
+
+    #close-btn:hover {
+      background: rgba(255, 0, 0, 0.8);
+    }
+
+    /* MOBILE */
+    @media (max-width: 600px) {
+      #iframe-wrapper {
+        max-width: 100%;
+        height: 400px; /* Altura fixa menor */
+        border-radius: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
+      #iframe-fixo {
+        border-radius: 0;
+      }
+
+      #close-btn {
+        top: 6px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+        line-height: 28px;
+      }
+    }
+ /* ====== propagandaexterna====== */
+
+
+    /* ====== ESTILOS GERAIS ====== */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      color: #333;
+    }
+
+    header {
+      background-color: #006699;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1, h2 {
+      margin: 0 0 20px;
+    }
+
+    /* ====== TIMELINE ====== */
+    .timeline-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .timeline {
+      position: relative;
+      border-left: 4px solid #006699;
+      margin-left: 20px;
+      padding-left: 20px;
+    }
+
+    .timeline-item {
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -13px;
+      top: 5px;
+      width: 20px;
+      height: 20px;
+      background: #006699;
+      border-radius: 50%;
+      border: 3px solid #fff;
+    }
+
+    .timeline-date {
+      font-weight: bold;
+      color: #006699;
+      margin-bottom: 5px;
+    }
+
+    .city-name {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #444;
+    }
+
+    .timeline-content {
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    /* ====== SLIDESHOW DE PRODUTOS ====== */
+    .produto-slideshow {
+      max-width: 900px;
+      margin: 40px auto;
+      text-align: center;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+
+
+
+    .slideshow-container-produto {
+      position: relative;
+      max-width: 100%;
+      margin: auto;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .produto-slide {
+      display: none;
+      position: relative;
+      text-align: center;
+    }
+
+    .produto-slide img {
+      width: 100%;
+      display: block;
+      border-radius: 10px;
+    }
+
+    .caption {
+      background: rgba(0, 102, 153, 0.8);
+      color: #fff;
+      padding: 10px;
+      font-size: 18px;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      padding: 12px;
+      color: white;
+      font-weight: bold;
+      font-size: 24px;
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 50%;
+      user-select: none;
+      transform: translateY(-50%);
+      transition: background-color 0.3s ease;
+      z-index: 10;
+    }
+
+    .prev { left: 15px; }
+    .next { right: 15px; }
+
+    .prev:hover, .next:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .fade {
+      animation: fade 1s ease-in-out;
+    }
+
+    @keyframes fade {
+      from { opacity: 0.4 }
+      to { opacity: 1 }
+    }
+
+    .produto-slide.active {
+      display: block;
+    }
+
+    /* ====== RESPONSIVO ====== */
+    @media (max-width: 600px) {
+      .timeline-container,
+      .produto-slideshow {
+        padding: 20px;
+      }
+
+      .caption {
+        font-size: 16px;
+      }
+
+      .prev, .next {
+        font-size: 18px;
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Momentos Históricos de Vila Velha, Vitória, Serra, Cariacica e São Mateus</h1>
+</header>
+
+<!-- SLIDESHOW DE PRODUTOS -->
+<section class="produto-slideshow">
+  <h2>CONFIRA ESSES PRODUTOS </h2>
+  <div class="slideshow-container-produto">
+
+    <!-- Slide 1 -->
+    <div class="produto-slide fade active">
+      <a href="https://api.whatsapp.com/send?phone=5527999497001&text=Olatudobem." target="_blank">
+        <img src="CONSORCIO.webp" alt="Produto 1" />
+        <p class="caption">CONSÓRCIO IMOBILIARIO</p>
+      </a>
+    </div>
+    
+      <!--slide9-->
+     <div class="produto-slide fade">
+      <a href="https://wa.me/5527999860405?text=olaquantoéavodka" target="_blank">
+        <img src="bebida.jpg" alt="Produto 7" />
+        <p class="caption">“A vodka perfeita para momentos inesquecíveis — aproveite e garanta já a sua!”</p>
+      </a>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="produto-slide fade">
+      <a href="https://www.airbnb.com.br/r/saibvictore?s=6&t=061n0g" target="_blank">
+        <img src="produto.jpeg" alt="Produto 2" />
+        <p class="caption">COMECE NO AIRBNB AGORA MESMO</p>
+      </a>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="produto-slide fade">
+      <a href="https://ocomerciobrasileironoticia.blogspot.com/" target="_blank">
+        <img src="produto.jpeg" alt="Produto 3" />
+        <p class="caption">ERP PROFISSIONAL CONFIRA SAIBA TUDO A RESPEITO</p>
+      </a>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="produto-slide fade">
+      <a href="https://central.dokehost.com.br/aff.php?aff=90" target="_blank">
+        <img src="produto.jpeg" alt="Produto 4" />
+        <p class="caption">VPS MÁQUINAS PROFISSIONAIS PARA SUA DEMANDA</p>
+      </a>
+    </div>
+
+    <!-- Slide 5 -->
+    <div class="produto-slide fade">
+      <a href="https://www.larissasaib.com.br/" target="_blank">
+        <img src="produto.jpeg" alt="Produto 5" />
+        <p class="caption">“Cansado de ficar careca? Nós temos a solução! Tratamento eficaz contra calvície para você recuperar sua autoestima.”</p>
+      </a>
+    </div>
+
+    <!-- Slide 6 -->
+    <div class="produto-slide fade">
+      <a href="https://hostinger.com.br/?REFERRALCODE=1VICTOR444" target="_blank">
+        <img src="produto.jpeg" alt="Produto 6" />
+        <p class="caption">“Hospede seu site com segurança, rapidez e suporte 24/7. Comece hoje mesmo!”</p>
+      </a>
+    </div>
+
+    <!-- Slide 7 -->
+    <div class="produto-slide fade">
+      <a href="https://www.youtube.com/@gamenologia" target="_blank">
+        <img src="produto.jpeg" alt="Produto 7" />
+        <p class="caption">“CONFIRA ESSE CANAL NO YOUTUBE”</p>
+      </a>
+    </div>
+
+
+
+       <!-- Slide 8 -->
+    <div class="produto-slide fade">
+      <a href="https://wa.me/5527999860405?text=olaquantoéavodka" target="_blank">
+        <img src="bebida.jpg" alt="Produto 7" />
+        <p class="caption">“Vodka gelada, puro sabor para sua festa — compre agora!”</p>
+      </a>
+    </div>
+
+
+        <!-- Slide 10 -->
+    <div class="produto-slide fade">
+      <a href="https://wa.me/5527999860405?text=olaquantoéwhisky" target="_blank">
+        <img src="bebida.jpg" alt="Produto 7" />
+        <p class="caption">“Descubra o sabor inconfundível do Red Label — o whisky que combina tradição e ousadia em cada gole!”</p>
+      </a>
+    </div>
+
+
+
+    <!-- Botões -->
+    <a class="prev" onclick="moveProdutoSlide(-1)">❮</a>
+    <a class="next" onclick="moveProdutoSlide(1)">❯</a>
+  </div>
+</section>
+
+<!-- LINHA DO TEMPO -->
+<section class="timeline-container">
+  <h2>Momentos Históricos de Vila Velha, Vitória, Serra, Cariacica e São Mateus</h2>
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div class="timeline-date">1535</div>
+      <div class="city-name">Vila Velha</div>
+      <div class="timeline-content">Fundação da primeira vila do Espírito Santo por Vasco Fernandes Coutinho. Chamava-se "Vila do Espírito Santo".</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">1551</div>
+      <div class="city-name">Vitória</div>
+      <div class="timeline-content">Fundação da cidade de Vitória, na ilha de mesmo nome, como novo centro administrativo da capitania.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">1562</div>
+      <div class="city-name">Serra</div>
+      <div class="timeline-content">Primeiras ocupações coloniais, com destaque para a construção da Igreja dos Reis Magos em Nova Almeida pelos jesuítas.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">1837</div>
+      <div class="city-name">São Mateus</div>
+      <div class="timeline-content">Elevação à categoria de cidade. Sua história está ligada à navegação fluvial e comércio do norte do Espírito Santo.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">1890</div>
+      <div class="city-name">Cariacica</div>
+      <div class="timeline-content">Torna-se município independente. Cresceu como eixo de ligação entre o interior e o porto de Vitória.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">1960–2000</div>
+      <div class="city-name">Serra, Cariacica e Vila Velha</div>
+      <div class="timeline-content">Expansão urbana e industrial intensa, com destaque para o surgimento de polos logísticos e bairros populosos como Laranjeiras, Campo Grande e Itapoã.</div>
+    </div>
+
+    <div class="timeline-item">
+      <div class="timeline-date">Atualidade</div>
+      <div class="city-name">Grande Vitória</div>
+      <div class="timeline-content">As cidades integram a Região Metropolitana, com destaque para turismo, indústria, comércio e qualidade de vida.</div>
+    </div>
+
+
+
+
+
+    <!-- Notícias de Vitória -->
+<div class="timeline-item">
+  <div class="timeline-date">2025</div>
+  <div class="city-name">Vitória</div>
+  <div class="timeline-content">
+    <ul>
+      <li>Prefeito Arnaldinho Borgo corta verba do auxílio moradia para bancar despesas da Secretaria de Governo de Vila Velha.</li>
+      <li>Comissão e PRF debatem dados sobre vítimas fatais na BR-101.</li>
+      <li>Cabo Fonseca se lança pré-candidato ao Senado e defende “nova voz” para o ES.</li>
+      <li>Moradores de Nova Esperança em Cariacica recebem escrituras nesta quinta-feira.</li>
+      <li>Polícia Civil realiza operação de combate ao fornecimento de “drogas gourmet” em vários pontos da Grande Vitória.</li>
+      <li>Presidente e vice-presidente da Câmara de Linhares garantem emendas parlamentares de quase R$ 820 mil.</li>
+      <li>Sete anos sem Marielle: saiba quem são os envolvidos no crime.</li>
+      <li>Lula entrega 789 novas ambulâncias para a frota do Samu.</li>
+      <li>BNDES aprova mais de R$ 10 bilhões para o Fundo Clima.</li>
+      <li>Nunes Marques vota contra recurso de Bolsonaro e Braga Netto.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Notícias de Serra -->
+<div class="timeline-item">
+  <div class="timeline-date">2025</div>
+  <div class="city-name">Serra</div>
+  <div class="timeline-content">
+    <ul>
+      <li>Vereador propõe criação da Frente Parlamentar da Primeira Infância na Serra.</li>
+      <li>Sem celulares, escolas da Serra inovam recreios com leitura e brincadeiras.</li>
+      <li>Vereadores aprovam criação da Procuradoria da Mulher.</li>
+      <li>Fim de semana de celebração e diversidade agita balneários da Serra.</li>
+      <li>Ifes adapta aulas de programação e robótica para crianças de até 5 anos na Serra.</li>
+      <li>Fundão encerra 2024 sem expediente completo, salários atrasados, sem réveillon e sem festejos tradicionais.</li>
+      <li>Assaí oferece 15 vagas exclusivas para profissionais com deficiência para unidade em Serra.</li>
+      <li>Vagas de estágio do IEL-ES com bolsas de até R$ 1.302,00.</li>
+      <li>Prefeitura da Serra se pronuncia sobre convocação de aprovados.</li>
+      <li>ES é o primeiro Estado a criar cadastro biométrico no sistema prisional.</li>
+    </ul>
+  </div>
+</div>
+
+
+  </div>
+</section>
+
+<!-- JS do Slideshow -->
+<script>
+  let produtoIndex = 0;
+  const produtoSlides = document.querySelectorAll('.produto-slide');
+
+  function showProdutoSlide(index) {
+    produtoSlides.forEach(slide => slide.classList.remove('active'));
+    produtoSlides[index].classList.add('active');
+  }
+
+  function moveProdutoSlide(n) {
+    produtoIndex = (produtoIndex + n + produtoSlides.length) % produtoSlides.length;
+    showProdutoSlide(produtoIndex);
+  }
+
+  // Exibe o primeiro slide ao carregar a página
+  showProdutoSlide(produtoIndex);
+
+  // Auto slideshow troca slide a cada 6 segundos
+  setInterval(() => moveProdutoSlide(1), 9000);
+</script>
+
+
+<div id="iframe-wrapper" role="region" aria-label="Anúncio fixo">
+  <button id="close-btn" aria-label="Fechar anúncio">×</button>
+  <iframe
+    id="iframe-fixo"
+    src="https://remarkable-gelato-4db597.netlify.app/modeloanuncio.html"
+    title="Anúncio Fixo Responsivo"
+    loading="lazy"
+    ></iframe>
+</div>
+
+<script>
+  // Espera 10 segundos para exibir o botão de fechar
+  setTimeout(() => {
+    document.getElementById("close-btn").style.display = "block";
+  }, 10000);
+
+  // Ação do botão para fechar o iframe
+  document.getElementById("close-btn").addEventListener("click", () => {
+    document.getElementById("iframe-wrapper").style.display = "none";
+  });
+</script>
+</body>
+</html>
